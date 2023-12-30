@@ -1,0 +1,84 @@
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+  }
+
+  .signupform {
+    width: 70%;
+    max-width: 500px;
+    /* Set a max-width for better readability on larger screens */
+    margin: 50px auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  button {
+    flex: 1;
+    font-size: 1em;
+    background-color: #587ef4;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #2a58df;
+  }
+
+  .container {
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+  }
+
+  input {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    color: #414a67;
+    outline: none;
+    font-weight: 400;
+  }
+
+  input:focus {
+    border-color: #587ef4;
+  }
+
+  button:focus {
+    background-color: #2a58df;
+  }
+
+  #adminform {
+    display: none;
+  }
+
+  .container .submitbutton {
+    font-size: 1em;
+    background-color: #587ef4;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .container .submitbutton:hover {
+    background-color: #2a58df;
+  }
