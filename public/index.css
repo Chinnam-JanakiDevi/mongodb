@@ -5,6 +5,30 @@
     padding: 0;
   }
 
+  .navbar button a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 25px;
+    font-weight: 400;
+    /* padding: 10px 10px;
+    margin-top: 10px; */
+  }
+
+  .navbar button {
+    float: right;
+    flex: 1;
+    font-size: 1em;
+    background-color: #2a58df;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 15px 32px;
+    margin: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+  }
+
   .signupform {
     width: 70%;
     max-width: 500px;
@@ -22,7 +46,7 @@
     margin-bottom: 20px;
   }
 
-  button {
+  .button {
     flex: 1;
     font-size: 1em;
     background-color: #587ef4;
@@ -34,7 +58,7 @@
     cursor: pointer;
   }
 
-  button:hover {
+  .button:hover {
     background-color: #2a58df;
   }
 
@@ -60,13 +84,14 @@
     border-color: #587ef4;
   }
 
-  button:focus {
+  .button:focus {
     background-color: #2a58df;
   }
 
   #adminform {
     display: none;
   }
+
 
   .container .submitbutton {
     font-size: 1em;
@@ -82,3 +107,8 @@
   .container .submitbutton:hover {
     background-color: #2a58df;
   }
+
+  #adminloginform {
+    display: none;
+  }
+  

@@ -9,18 +9,21 @@
 <link rel="stylesheet" href="index.css">
 
 <body>
-  <!-- buutons for admin and user -->
+  <div class="navbar">
+    <button><a href="/login">Login</a></button>
+  </div>
+  <!-- buttons for admin and user -->
   <div class="signupform">
     <div class="buttons">
-      <button id="admin-button">Admin signup</button>
-      <button id="user-button">User signup</button>
+      <button id="admin-button" class="button">Admin signup</button>
+      <button id="user-button" class="button">User signup</button>
     </div>
-    <form method="post" action="/user_signup" id="userform" role="form" enctype="multipart/form-data">
+    <form method="post" action="/user_signup" id="userform" role="form" enctype="multipart/form-data" onsubmit="return validateForm()">
       <div class="container">
         <input type="text" name="username" placeholder="Enter Username">
         <input type="email" name="usermail" placeholder="Enter Email">
         <input type="password" name="userpass" placeholder="Enter Password">
-        <input type="text" name="userph_no" placeholder="Enter PhoneNumber">
+        <input type="text" name="userph_no" placeholder="Enter PhoneNumber                                                                         optional">
         <input type="file" name="multiple_input" class="form-control">
         <!-- <input type="text" class="form-control" readonly> -->
         <input type="submit" value="signup" class="submitbutton">

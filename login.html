@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<link rel="stylesheet" href="index.css">
+<style>
+
+</style>
+
+<body>
+    <div class="navbar">
+        <button><a href="/">signup</a></button>
+    </div>
+    <!-- buttons for admin and user -->
+    <div class="signupform">
+        <div class="buttons">
+            <button id="userlogin-button" class="button">User Login</button>
+            <button id="adminlogin-button" class="button">Admin Login</button>
+        </div>
+        <form method="post" action="/user_login" id="userloginform" role="form" onsubmit="return validateForm()">
+            <div class="container">
+                <select name="contactType" id="contactType_user" onchange="showContactInput('user')">
+                    <option value="email">Email</option>
+                    <option value="phone">Phone Number</option>
+                </select>
+                <input type="text" name="usermail" id="userEmailInput" placeholder="Enter User Email">
+                <input type="text" name="userph_no" id="userPhoneInput" placeholder="Enter User PhoneNumber"
+                    style="display: none;">
+
+                <input type="password" name="userpass" placeholder="Enter Password">
+                <!-- <input type="text" class="form-control" readonly> -->
+                <input type="submit" value="Login" class="submitbutton">
+            </div>
+        </form>
+        <form method="post" action="/admin_login" class="adminloginform" id="adminloginform">
+            <div class="container">
+                <select name="contactType" id="contactType_admin" onchange="showContactInput('admin')">
+                    <option value="email">Email</option>
+                    <option value="phone">Phone Number</option>
+                </select>
+                <input type="text" name="adminmail" id="adminEmailInput" placeholder="Enter Admin Email">
+                <input type="text" name="adminph_no" id="adminPhoneInput" placeholder="Enter Admin PhoneNumber"
+                    style="display: none;">
+
+                <input type="password" name="adminpass" placeholder="Enter Password">
+                <!-- <input type="text" class="form-control" readonly> -->
+                <input type="submit" value="Login" class="submitbutton">
+            </div>
+        </form>
+    </div>
+</body>
+
+<!-- Add this style to hide the admin form initially -->
+<!-- <script src="/script.js"></script> -->
+<script>
+    const adminloginbutton = document.getElementById("adminlogin-button");
+    const userloginbutton = document.getElementById("userlogin-button");
+    const adminlogin_form = document.getElementById("adminloginform");
+    const userloginform = document.getElementById("userloginform");
+    adminloginbutton.addEventListener("click", () => {
+        // Show the admin form
+
+        adminlogin_form.style.display = "block";
+        // Hide the user form
+        userloginform.style.display = "none";
+
+        // Set styles for the buttons
+        adminloginbutton.style.backgroundColor = "#2a58df";
+        userloginbutton.style.backgroundColor = "#587ef4";
+    });
+
+    userloginbutton.addEventListener("click", () => {
+        // Show the user form
+        userloginform.style.display = "block";
+        // Hide the admin form
+        adminlogin_form.style.display = "none";
+
+        // Set styles for the buttons
+        userloginbutton.style.backgroundColor = "#2a58df";
+        adminloginbutton.style.backgroundColor = "#587ef4";
+    });
+
+
+    function showContactInput(userType) {
+        var contactType = document.getElementById(`contactType_${userType}`).value;
+        var emailInput = document.getElementById(`${userType}EmailInput`);
+        var phoneInput = document.getElementById(`${userType}PhoneInput`);
+
+        if (contactType === "email") {
+            emailInput.style.display = "block";
+            phoneInput.style.display = "none";
+        } else if (contactType === "phone") {
+            emailInput.style.display = "none";
+            phoneInput.style.display = "block";
+        }
+    }
+
+
+</script>
+
+</html>

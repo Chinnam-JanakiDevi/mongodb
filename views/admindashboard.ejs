@@ -1,0 +1,318 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body>div {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .table_responsive {
+    max-width: 1000px;
+    border: 1px solid #00bcd4;
+    background-color: #efefef33;
+    padding: 15px;
+    overflow: auto;
+    margin-left: 15px;
+    margin-top: 30px;
+    border-radius: 4px;
+
+  }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    color: #444;
+    white-space: nowrap;
+    border-collapse: collapse;
+  }
+
+  table>thead {
+    background-color: #00bcd4;
+    color: #fff;
+  }
+
+  table>thead th {
+    padding: 15px;
+  }
+
+  table th,
+  table td {
+    border: 1px solid #00000017;
+    padding: 10px 15px;
+  }
+
+  table>tbody>tr>td>img {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 6px #0003;
+  }
+
+
+  .action_btn {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .action_btn>a {
+    text-decoration: none;
+    color: #444;
+    background: #fff;
+    border: 1px solid;
+    display: inline-block;
+    padding: 7px 20px;
+    font-weight: bold;
+    border-radius: 3px;
+    transition: 0.3s ease-in-out;
+  }
+
+  .action_btn>a:nth-child(1) {
+    border-color: #26a69a;
+  }
+
+  .action_btn>a:nth-child(2) {
+    border-color: orange;
+  }
+
+  .action_btn>a:hover {
+    box-shadow: 0 3px 8px #0003;
+  }
+
+
+  table>tbody>tr {
+    background-color: #fff;
+    transition: 0.3s ease-in-out;
+  }
+
+
+  table>tbody>tr:nth-child(even) {
+    background-color: rgb(238, 238, 238);
+  }
+
+  table>tbody>tr:hover {
+    filter: drop-shadow(0px 2px 6px #0002);
+  }
+
+  .navbar {
+    float: right;
+
+  }
+
+  .navbar .action_btn {
+    display: flex;
+  }
+</style>
+
+<body>
+  <div class="navbar">
+    <span class="action_btn">
+      <a href="/">Signup</a>
+      <a href="/login">Login</a>
+    </span>
+  </div>
+
+  <div class="table_responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Profile</th>
+          <th>Name</th>
+          <th>email</th>
+          <th>phone_number</th>
+          <th>Edit/Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% x.forEach((y)=> { %>
+          <tr>
+            <td>
+              <%= y._id %>
+            </td>
+
+            <td><img src="/images/<%= y.image %>" alt="Image"></td>
+            <td>
+              <%= y.name %>
+            </td>
+            <td>
+              <%= y.email %>
+            </td>
+            <td>
+              <%= y.phone_number %>
+            </td>
+            <td>
+              <span class="action_btn">
+                <a href="#"
+                  onclick="showEditForm('<%= y._id %>','<%= y.name %>','<%= y.email %>','<%= y.phone_number %>')"
+                  data-toggle="modal" data-target="#editModal">Edit</a>
+                <a href="#" onclick="showDeleteForm('<%= y.email %>')" data-toggle="modal"
+                  data-target="#deleteModal">Delete</a>
+              </span>
+              <div id="deletediv"></div>
+
+            </td>
+          </tr>
+          <% }); %>
+
+      </tbody>
+    </table>
+  </div>
+
+  <form id="editForm" style="display: none;">
+    <!-- <input type="hidden" name="_method" value="PUT"> -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="editModalLabel">Edit User</h4>
+          </div>
+          <div class="modal-body text-center">
+            <div class="form-group">
+              <h3 name="userid" id="userid" style="color: red;"></h3>
+              <label for="username">Username:</label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username">
+            </div>
+            <div class="form-group">
+              <label for="usermail">Email:</label>
+              <input type="email" class="form-control" id="usermail" name="usermail" placeholder="Enter Email">
+            </div>
+            <!-- <div class="form-group">
+              <label for="userpass">Password:</label>
+              <input type="password" class="form-control" id="userpass" name="userpass" placeholder="Enter Password">
+            </div> -->
+            <div class="form-group">
+              <label for="userph_no">Phone Number:</label>
+              <input type="text" class="form-control" id="userph_no" name="userph_no" placeholder="Enter PhoneNumber">
+            </div>
+            <input type="submit" value="update" class="btn btn-primary">
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form id="DeleteForm" style="display: none;">
+    <!-- <input type="hidden" name="_method" value="PUT"> -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="editModalLabel">Delete User</h4>
+          </div>
+          <div class="modal-body text-center">
+
+            <div class="form-group">
+              <label for="usermail">Email:</label>
+              <input type="email" class="form-control" id="useremail" name="useremail" placeholder="Enter Email">
+            </div>
+
+            <input type="submit" value="Delete" class="btn btn-primary">
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </form>
+</body>
+<script>
+  function showEditForm(userId, name, email, phone_number) {
+    document.getElementById('editForm').style.display = 'block';
+    document.getElementById('userid').innerHTML = userId;
+    document.getElementById('username').value = name;
+    document.getElementById('usermail').value = email;
+    document.getElementById('userph_no').value = phone_number;
+  }
+  function showDeleteForm(email) {
+    document.getElementById('DeleteForm').style.display = 'block';
+    document.getElementById('useremail').value = email;
+  }
+  const editForm = document.getElementById('editForm');
+  editForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // const id = document.getElementById('userid').value;
+    const username = editForm.elements.username.value;
+    const email = editForm.elements.usermail.value;
+    const phone_number = editForm.elements.userph_no.value;
+
+    const updatedData = {
+      username,
+      email,
+      phone_number,
+    };
+
+    try {
+      const response = await fetch(`/users/update/${email}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        console.log('Updated User:', updatedUser);
+        // Display success message or update UI as needed
+      } else {
+        console.error('Error updating user:', response.statusText);
+        // Display error message or handle the error
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      // Display error message or handle the error
+    }
+  });
+
+  const DeleteForm = document.getElementById('DeleteForm');
+  DeleteForm.addEventListener('submit', async () => {
+    const usermail = document.getElementById("useremail").value;
+    try {
+      const response = await fetch(`/users/delete/${usermail}`, {
+        method: 'delete'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+        deletediv.innerHTML = 'succesfully deleted';
+      } else {
+        console.error('Error deleting user:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  });
+
+
+</script>
+
+
+</html>

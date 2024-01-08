@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express')
+const methodOverride = require('method-override');
 const mongoose = require('mongoose')
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -8,6 +9,8 @@ const multer = require("multer");
 const striptags = require('striptags');
 const Grid = require("gridfs-stream");
 const crypto = require("crypto");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const Router = express.Router();
@@ -15,6 +18,7 @@ const Router = express.Router();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -74,19 +78,19 @@ let upload = multer({
   }
 })
 
-app.post('/user_signup', upload.array('multiple_input', 3), (req, res) => {
+app.post('/user_signup', upload.array('multiple_input', 3), async (req, res) => {
   var name = req.body.username;
   var email = req.body.usermail;
   var password = req.body.userpass;
   var phone_number = req.body.userph_no
-  
-  // Check if title and content are present
+  var hashedPassword = await bcrypt.hash(password, 10);
+
   if (!name || !email) {
     return res.status(400).send('Title and content are required.');
   }
 
   req.files.forEach((single_image) => {
-    userlogin.create({ name: name, email: email, password: password, phone_number: phone_number, image: single_image.filename })
+    userlogin.create({ name: name, email: email, password: hashedPassword, phone_number: phone_number, image: single_image.filename })
       .then((result) => {
         console.log(result);
       })
@@ -95,21 +99,22 @@ app.post('/user_signup', upload.array('multiple_input', 3), (req, res) => {
       });
   });
 
-  res.send("success");
+  return res.sendFile(path.join(__dirname, 'login.html'));  // Updated path
 });
 
-app.post('/admin_signup', upload.array('multiple_input', 3), (req, res) => {
+app.post('/admin_signup', upload.array('multiple_input', 3), async (req, res) => {
   var name = req.body.username;
   var email = req.body.usermail;
   var password = req.body.userpass;
   var phone_number = req.body.userph_no
+  var hashedPassword = await bcrypt.hash(password, 10);
   // Check if title and content are present
   if (!name || !email) {
     return res.status(400).send('Title and content are required.');
   }
 
   req.files.forEach((single_image) => {
-    adminlogin.create({ name: name, email: email, password: password, phone_number: phone_number, image: single_image.filename })
+    adminlogin.create({ name: name, email: email, password: hashedPassword, phone_number: phone_number, image: single_image.filename })
       .then((result) => {
         console.log(result);
       })
@@ -117,10 +122,186 @@ app.post('/admin_signup', upload.array('multiple_input', 3), (req, res) => {
         console.error(error);
       });
   });
-
-  res.send("success");
+  return res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+app.get('/login', function (req, res) {
+  res.set({
+    'Access-control-Allow-Origin': '*'
+  });
+  return res.sendFile(path.join(__dirname, 'login.html'));  // Updated path
+})
+
+app.post('/user_login', async (req, res) => {
+  const { usermail, userpass, userph_no } = req.body;
+
+  try {
+    // Check if the user exists in the database by email or phone
+    const user = await userlogin.findOne({
+      $or: [
+        { email: usermail },
+        { phone_number: userph_no },
+      ],
+    });
+    console.log(user);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Compare the hashed password
+    const isPasswordValid = await bcrypt.compare(userpass, user.password);
+
+    if (isPasswordValid) {
+      const token = jwt.sign({ userId: user._id, email: user.email }, 'your-secret-key', { expiresIn: '1h' });
+      console.log(isPasswordValid);
+      // Include the token in the redirect URL
+      // return res.redirect(`/userinterface.html?token=${token}`);
+      return res.redirect(`/userinterface.html?token=${token}&username=${user._id}`);
+    } else {
+      return res.status(401).send('Invalid password');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/userinterface.html', (req, res) => {
+
+  res.redirect('/view');
+
+});
+app.set('view engine', 'ejs');
+
+// Assuming you're using Express
+app.get('/view', (req, res) => {
+  userlogin.find({})
+    .then((posts) => {
+      // Remove HTML tags from the content field
+      const sanitizedPosts = posts.map(post => {
+        return {
+          _id: post._id,
+          title: post.name,
+          content: post.email,
+          phone_number: post.phone_number,
+          Picture: post.image,
+          __v: post.__v
+        };
+      });
+      res.render('userprofile', { x: sanitizedPosts });
+      console.log(sanitizedPosts);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+
+app.post('/admin_login', async (req, res) => {
+  const { adminmail, adminpass, adminph_no } = req.body;
+
+  try {
+    // Check if the user exists in the database by email or phone
+    const user = await adminlogin.findOne({
+      $or: [
+        { email: adminmail },
+        { phone_number: adminph_no },
+      ],
+    });
+    console.log(user);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Compare the hashed password
+    const isPasswordValid = await bcrypt.compare(adminpass, user.password);
+
+    if (isPasswordValid) {
+      const token = jwt.sign({ userId: user._id, email: user.email }, 'your-secret-key', { expiresIn: '1h' });
+      console.log(isPasswordValid);
+      // Include the token in the redirect URL
+      // return res.redirect(`/userinterface.html?token=${token}`);
+      return res.redirect(`/adminuserinterface.html?token=${token}`);
+    } else {
+      return res.status(401).send('Invalid password');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/adminuserinterface.html', (req, res) => {
+
+  res.redirect('/adminview');
+
+});
+app.set('view engine', 'ejs');
+
+// Assuming you're using Express
+app.get('/adminview', (req, res) => {
+  userlogin.find({})
+    .then((posts) => {
+      // Remove HTML tags from the content field
+      const sanitizedPosts = posts.map(post => {
+        return {
+          _id: post._id,
+          name: post.name,
+          email: post.email,
+          password: post.password,
+          phone_number: post.phone_number,
+          image: post.image,
+          __v: post.__v
+        };
+      });
+
+      res.render('admindashboard', { x: sanitizedPosts });
+      console.log(sanitizedPosts);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+// app.use(methodOverride('_method'));
+
+app.put('/users/update/:useremail', (req, res) => {
+  const useremail = req.params.useremail;
+  console.log(useremail);
+  const newData = req.body;
+  console.log(newData);
+
+  userlogin.updateOne({ email: useremail },  { $set: newData }, { upsert: true })
+    .then(document => {
+      if (document) {
+        console.log('updates', document);
+        res.json(document);
+      } else {
+        console.log('no documents found');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err); // Sending the error response to the client
+    });
+});
+
+app.delete('/users/delete/:usermail', async (req, res) => {
+  try {
+    const usermail = req.params.usermail;
+    console.log(usermail);
+    const deletedUser = await userlogin.findOneAndDelete({ email: usermail });
+
+    if (!deletedUser.value) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // res.json({ message: 'User deleted successfully' });
+    res.render('admindashboard');
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 connectDB().then(() => {
   app.listen(PORT, () => {
@@ -128,66 +309,3 @@ connectDB().then(() => {
   })
 
 })
-
-
-
-
-
-// const express = require('express')
-// const mongoose = require('mongoose')
-// const Book = require("./model/books");
-// const Insight = require('./model/insights');
-// const cors=require("cors");
-// const app=express();
-// const path = require("path"); 
-// const bodyParser=require("body-parser");
-// const Router = express.Router(); 
-
-// const PORT = process.env.PORT || 5000
-// //mongodb+srv://chinnamjanakidevi123:<password>@cluster0.zkix1hk.mongodb.net/
-// mongoose.set('strictQuery', false);
-// MONGO_URI="mongodb+srv://chinnamjanakidevi123:bNnaW8MhXAwtlnAe@cluster0.zkix1hk.mongodb.net/sample"
-// const connectDB = async () => {
-//   try {
-//     const conn = await mongoose.connect(process.env.MONGO_URI);
-//     console.log(`MongoDB Connected: ${conn.connection.host}`);
-//   } catch (error) {
-//     console.log(error);
-//     process.exit(1);
-//   }
-// }
-
-// //Routes go here
-
-
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname,'index.html'));  // Updated path
-// });
-
-
-// app.get('/api/insights', async (req, res) => {
-//     try {
-//       const insights = await Insight.find();
-//       res.json(insights);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal Server Error' });
-//     }
-//   });
-// //Connect to the database before listening
-// connectDB().then(() => {
-//     app.listen(PORT, () => {
-//       console.log(`Server is running on http://localhost:${PORT}`);    })
-// })
-
-//mULTIPLE IMAGE UPLODING
-// app.post('/multiplepost', upload.array('multiple_input', 3), (req, res) => {
-//   req.files.forEach((singale_image) => {
-//     image.create({ image: singale_image.filename })
-//       .then((x) => {
-//         res.redirect('/')
-//       })
-//       .catch((y) => {
-//         console.log(y)
-//       })
-//   })
-// })

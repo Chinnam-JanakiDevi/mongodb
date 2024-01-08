@@ -1,0 +1,47 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Page</title>
+</head>
+
+<body>
+  <h1>Welcome to the User Page</h1>
+  <div id="userDetails">
+    <!-- User details will be displayed here -->
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('username');
+      const token = urlParams.get('token');
+
+      if (token && userId) {
+        // Fetch user details using an authenticated request
+        fetch(`/user/details/${userId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then(response => response.json())
+          .then(user => {
+            // Display user details in the HTML
+            const userDetailsElement = document.getElementById('userDetails');
+            userDetailsElement.innerHTML = `
+              <p>User ID: ${user._id}</p>
+              <p>Username: ${user.name}</p>
+              <!-- Add more user details as needed -->
+            `;
+          })
+          .catch(error => console.error('Error fetching user details:', error));
+      } else {
+        console.error('Token or userId not found in the URL parameters.');
+      }
+    });
+  </script>
+</body>
+
+</html>
